@@ -25,22 +25,22 @@ let gameboard =(function Grid(){
             console.log(grid[i]);
         }
     }
-    const selectCell = (player)=>{
-        let row = 0;
-        let col = 0;
-        // rl.question("Enter rows: ", function(rows){
-        //      row = rows;
-        //     rl.close();
-        // });
-        // rl.question("Enter columns: ", function(cols){
-        //     col = cols;
-        //     rl.close();
-        // })
-    
-        
+    const selectCell = (player) => {
+        rl.question("Enter row number: ", (rowInput) => {
+        let row = parseInt(rowInput);
 
-        grid[row][col] = player.value;
-    }
+        rl.question("Enter column number: ", (colInput) => {
+        let col = parseInt(colInput);
+
+        grid[row][col] = player.getPlayerValue();
+           
+        });
+        
+    });
+    
+    
+};
+
     return {getGrid, printGrid, selectCell, getCol, getRows};
 })();
 
@@ -89,6 +89,7 @@ function roundsFactory(player1, player2){
 
     const turnP1 = ()=>{
         gameboard.printGrid();
+        console.log("\n");
         gameboard.selectCell(P1);
     
     }
@@ -153,10 +154,12 @@ function roundsFactory(player1, player2){
         return win;
     }
     const roundFunctionality = ()=>{
-        do{
+        let count = 0;
+         do{
+            
             turnP1();
             turnP2();                        
-        }while(checkWinStatus(P1)!=true || checkWinStatus(P2)!= true)
+         }while(checkWinStatus(P1)!=true || checkWinStatus(P2)!= true)
     }
     return {roundFunctionality};
     
@@ -168,7 +171,7 @@ function roundsFactory(player1, player2){
     let P1 = playerFactory();
     P1.setPlayerName("Mustafa");
     P1.setPlayerValue("X");
-
+   
     let P2 = playerFactory();
     P2.setPlayerName("Ali");
     P2.setPlayerValue("O");
@@ -178,6 +181,7 @@ function roundsFactory(player1, player2){
 //rounds
 })();
 
-
+//having issues with the do while loop, it keeps running, plus im not being able to take rows and columns as input, i mean,
+//I can, but its causing problems
 
 
