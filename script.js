@@ -1,3 +1,10 @@
+const readline = require('readline');
+
+const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+
 let gameboard =(function Grid(){
     let rows = 3;
     let columns = 3;
@@ -19,13 +26,22 @@ let gameboard =(function Grid(){
         }
     }
     const selectCell = (player)=>{
+        let row = 0;
+        let col = 0;
+        // rl.question("Enter rows: ", function(rows){
+        //      row = rows;
+        //     rl.close();
+        // });
+        // rl.question("Enter columns: ", function(cols){
+        //     col = cols;
+        //     rl.close();
+        // })
+    
         
-        let row = prompt("Enter row: ");
-        let col = prompt("Enter column:: ");
 
         grid[row][col] = player.value;
     }
-    return {getGrid, printGrid, selectCell};
+    return {getGrid, printGrid, selectCell, getCol, getRows};
 })();
 
 function playerFactory(){
@@ -90,28 +106,57 @@ function roundsFactory(player1, player2){
         //check rows
         let counter = 0;
         let win = false;
-        for(let i = 0;i<rows;i++){
+        for(let i = 0;i<3;i++){
             counter = 0;
-            for(let i = 0; i < columns;i++){
-                if(grid[i][j]===value){counter++;
+            console.log("Row " + i)
+
+            for(let j = 0; j < 3;j++){
+                console.log("col "+j);
+                if(grid[i][j]===value){
+                    counter++;
                     if (counter === 3){
-                    win = true;
-                    break;
+                        console.log("win: row");
+                        win = true;
+                        break;
+                    }
                 }
+               if(win === true){break;}
+            }
+            if(win === true){break;}
+        }
+        //check columns
+        for(let i = 0; i < rows; i++){
+            if(win === true){break;}
+            counter = 0;
+            console.log("Column "+i);
+            for(let j = 0; j < columns; j++){
+                if(grid[j][i] === value){
+                    counter++;
+                    if (counter === 3){
+                        console.log("win: col");
+                        win = true;
+                        break;
+                    }
                 }
-                
             }
         }
+        if(win != true){
+            if(grid[0][0] === value && grid[1][1] === value && grid[2][2] === value){
+                win = true;
+            }
+        }
+        if(win != true){
+            if(grid[0][2] === value && grid[1][1] === value && grid[2][0] === value){
+                win = true;
+            }
+        }
+        return win;
     }
     const roundFunctionality = ()=>{
-        do{if(count%2 === 0){
-            turnP2();
-            count++;
-        }
-        else{
+        do{
             turnP1();
-            count++;
-        }}while(winner === null)
+            turnP2();                        
+        }while(checkWinStatus(P1)!=true || checkWinStatus(P2)!= true)
     }
     return {roundFunctionality};
     
@@ -128,8 +173,10 @@ function roundsFactory(player1, player2){
     P2.setPlayerName("Ali");
     P2.setPlayerValue("O");
 
+    let round1 = roundsFactory(P1, P2);
+    round1.roundFunctionality();
 //rounds
-})
+})();
 
 
 
