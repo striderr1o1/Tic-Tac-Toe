@@ -43,8 +43,8 @@ let gameboard =(function Grid(){
           const col = parseInt(enteredCol);
           process.exit(); // Exit the process after receiving input
         });
-
-        grid[row][col]=player.value;
+        //this is giving error here, it doesnt know what is row
+        grid[row][col]=player.getPlayerValue();
         
     }
     
@@ -125,7 +125,7 @@ function roundsFactory(player1, player2){
     }
     
     const checkWinStatus = (player)=>{
-        let value = player.value;
+        let value = player.getPlayerValue();
         
         let rows = gameboard.getRows();
         let columns = gameboard.getCol();
@@ -185,7 +185,7 @@ function roundsFactory(player1, player2){
 
     
     const roundFunctionality = async ()=>{
-        let count = 4;
+        let count = 3;
         let Checkwin = false;
         for(let i = 0; i < count; i++){
         let active = getActivePlayer(player1, player2);
@@ -216,7 +216,6 @@ function roundsFactory(player1, player2){
 //rounds
 })();
 
-//having issues with the do while loop, it keeps running, plus im not being able to take rows and columns as input, i mean,
-//I can, but its causing problems
-
+//fixed the swapping.
+//need to fix the infinite loop, basically find a way to stop code at user input, also fix row col
 
