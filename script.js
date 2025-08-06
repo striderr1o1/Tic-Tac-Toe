@@ -1,3 +1,5 @@
+
+
 const readline = require('readline');
 
 const rl = readline.createInterface({
@@ -25,32 +27,41 @@ let gameboard =(function Grid(){
             console.log(grid[i]);
         }
     }
-    const selectCell = (player) => {
-        rl.question("Enter row number: ", (rowInput) => {
-        let row = parseInt(rowInput);
-
-        rl.question("Enter column number: ", (colInput) => {
-        let col = parseInt(colInput);
-
-        grid[row][col] = player.getPlayerValue();
-           
+  
+    const selectCell =async (player) => {
+        process.stdout.write('Enter row: \n');
+        process.stdin.on('r', (r) => {
+          const enteredRow = r.toString().trim();
+          const row = parseInt(enteredRow);
+          process.exit();
+           // Exit the process after receiving input
         });
         
-    });
+        process.stdout.write('Enter col: \n');
+        process.stdin.on('c', (c) => {
+          const enteredCol = c.toString().trim();
+          const col = parseInt(enteredCol);
+          process.exit(); // Exit the process after receiving input
+        });
+
+        grid[row][col]=player.value;
+        
+    }
     
     
-};
+
 
     return {getGrid, printGrid, selectCell, getCol, getRows};
 })();
-
+//###############################################################################################################################
 function playerFactory(){
     let name;
     let value = 0;
     let win = false;
+    let activness = false;
 
-    const setPlayerName = (name)=>{
-        name = name;
+    const setPlayerName = (namee)=>{
+        name = namee;
     }
     const getPlayerName = ()=>{
         return name;
@@ -69,37 +80,53 @@ function playerFactory(){
     const getPlayerStatus = ()=>{
         return win;
     }
-    
-    
-    
-    return {getPlayerName, setPlayerName, getPlayerStatus, setPlayerStatus, setPlayerValue, getPlayerValue};
-    
+    const getActivity = ()=>activness;
+    const setActivity = (x)=>{activness =x};
+  
+    return {getPlayerName, setPlayerName, getPlayerStatus, setPlayerStatus, setPlayerValue, getPlayerValue, getActivity, setActivity};
 
 }
 
-
+//###############################################################################################################################
 
 function roundsFactory(player1, player2){
     let round_no = 0;
     let winner = null;
-    P1 = player1;
-    P2 = player2;
+    // P1 = player1;
+    // P2 = player2;
     let count = 0;
+    
     let grid = gameboard.getGrid();
+    
 
-    const turnP1 = ()=>{
+    const turn = (player)=>{
+        
         gameboard.printGrid();
+        
+        console.log(player.getPlayerName()+"'s turn")
         console.log("\n");
-        gameboard.selectCell(P1);
-    
+        gameboard.selectCell(player);
+        
     }
-    const turnP2 = ()=>{
-        gameboard.printGrid();
-        gameboard.selectCell(P2);
-    
+    const getActivePlayer = (player1, player2) =>{
+       let active;
+        if(player1.getActivity() === true){
+            active = player2;
+            player2.setActivity(true);
+            player1.setActivity(false);
+        }
+        else{
+            active = player1;
+            player1.setActivity(true);
+            player2.setActivity(false);
+
+        }
+        return active; 
     }
+    
     const checkWinStatus = (player)=>{
         let value = player.value;
+        
         let rows = gameboard.getRows();
         let columns = gameboard.getCol();
         //win logic
@@ -109,10 +136,10 @@ function roundsFactory(player1, player2){
         let win = false;
         for(let i = 0;i<3;i++){
             counter = 0;
-            console.log("Row " + i)
+            
 
             for(let j = 0; j < 3;j++){
-                console.log("col "+j);
+                
                 if(grid[i][j]===value){
                     counter++;
                     if (counter === 3){
@@ -129,7 +156,7 @@ function roundsFactory(player1, player2){
         for(let i = 0; i < rows; i++){
             if(win === true){break;}
             counter = 0;
-            console.log("Column "+i);
+            
             for(let j = 0; j < columns; j++){
                 if(grid[j][i] === value){
                     counter++;
@@ -151,33 +178,41 @@ function roundsFactory(player1, player2){
                 win = true;
             }
         }
-        return win;
+        if(win === true){return win;}
+        else{return false;}
+        
     }
-    const roundFunctionality = ()=>{
-        let count = 0;
-         do{
-            
-            turnP1();
-            turnP2();                        
-         }while(checkWinStatus(P1)!=true || checkWinStatus(P2)!= true)
+
+    
+    const roundFunctionality = async ()=>{
+        let count = 4;
+        let Checkwin = false;
+        for(let i = 0; i < count; i++){
+        let active = getActivePlayer(player1, player2);
+        turn(active);
+        Checkwin= checkWinStatus(active);
+        // if (Checkwin!=true){count++;}
+        }
+         
+        
     }
     return {roundFunctionality};
-    
-
 
 }
-
+//###############################################################################################################################
 (function Game(){
     let P1 = playerFactory();
     P1.setPlayerName("Mustafa");
     P1.setPlayerValue("X");
-   
+
     let P2 = playerFactory();
     P2.setPlayerName("Ali");
     P2.setPlayerValue("O");
+    
 
     let round1 = roundsFactory(P1, P2);
     round1.roundFunctionality();
+    console.log("WOW")
 //rounds
 })();
 
