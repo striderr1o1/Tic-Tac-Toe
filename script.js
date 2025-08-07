@@ -11,7 +11,7 @@ let gameboard =(function Grid(){
     let rows = 3;
     let columns = 3;
     let grid = [];
-
+    let blocksTaken = [];
     for(let i = 0; i < rows; i++){
         grid[i] = [];
         for(let j = 0; j < columns;j++)
@@ -27,24 +27,40 @@ let gameboard =(function Grid(){
             console.log(grid[i]);
         }
     }
-  
-    const selectCell =async (player) => {
-        process.stdout.write('Enter row: \n');
-        process.stdin.on('r', (r) => {
-          const enteredRow = r.toString().trim();
-          const row = parseInt(enteredRow);
-          process.exit();
-           // Exit the process after receiving input
-        });
+  const occupyBlock = (row, col)=>{
+        blocksTaken.push([row, col]);
+    }
+
+    const checkBlockAvailability = (row, col)=>{
+        let available = true;
         
-        process.stdout.write('Enter col: \n');
-        process.stdin.on('c', (c) => {
-          const enteredCol = c.toString().trim();
-          const col = parseInt(enteredCol);
-          process.exit(); // Exit the process after receiving input
-        });
-        //this is giving error here, it doesnt know what is row
-        grid[row][col]=player.getPlayerValue();
+        for(let i = 0; i < blocksTaken.length;i++){
+        
+                if(row === blocksTaken[i][0] && col === blocksTaken[i][1]){
+                    console.log("Not available");
+                    available = false;
+                    break;
+                }
+            
+        }
+        return available;
+    }
+    const selectCell =async (player) => {
+        const prompt = require('prompt-sync')({sigint: true});
+        const row = parseInt(prompt('Enter row: '));
+        const prompt2 = require('prompt-sync')({sigint: true});
+        const col = parseInt(prompt2("Enter col: "));
+        let avbl = checkBlockAvailability(row, col);
+        if(avbl === true){
+        occupyBlock(row,col);
+        grid[row-1][col-1]=player.getPlayerValue();
+        
+        }
+        else{
+            console.log(player.getPlayerName()+"'s turn");
+            selectCell(player);
+        }
+        
         
     }
     
@@ -185,12 +201,17 @@ function roundsFactory(player1, player2){
 
     
     const roundFunctionality = async ()=>{
-        let count = 3;
+        let count = 100;
         let Checkwin = false;
         for(let i = 0; i < count; i++){
         let active = getActivePlayer(player1, player2);
         turn(active);
         Checkwin= checkWinStatus(active);
+        if(Checkwin === true){
+            console.log(gameboard.getGrid());
+            console.log(active.getPlayerName()+" has won!");
+            break;
+        }
         // if (Checkwin!=true){count++;}
         }
          
@@ -212,10 +233,11 @@ function roundsFactory(player1, player2){
 
     let round1 = roundsFactory(P1, P2);
     round1.roundFunctionality();
-    console.log("WOW")
+    
 //rounds
 })();
 
 //fixed the swapping.
 //need to fix the infinite loop, basically find a way to stop code at user input, also fix row col
+//also need to test checkwin function
 
