@@ -16,7 +16,7 @@ let gameboard =(function Grid(){
         grid[i] = [];
         for(let j = 0; j < columns;j++)
         {
-            grid[i][j]="-";
+            grid[i][j]="_";
         }
     }
     const getRows = ()=>rows;
@@ -46,10 +46,16 @@ let gameboard =(function Grid(){
         return available;
     }
     const selectCell =async (player) => {
-        const prompt = require('prompt-sync')({sigint: true});
-        const row = parseInt(prompt('Enter row: '));
+        let row; let col;
+        do{
+            const prompt = require('prompt-sync')({sigint: true});
+         row = parseInt(prompt('Enter row: '));
         const prompt2 = require('prompt-sync')({sigint: true});
-        const col = parseInt(prompt2("Enter col: "));
+         col = parseInt(prompt2("Enter col: "));
+         if(row < 0 || row > 3 || col < 0 || col > 3){
+            console.log("Enter appropriate number\n");
+         }
+        }while(row < 0 || row > 3 || col < 0 || col > 3);
         let avbl = checkBlockAvailability(row, col);
         if(avbl === true){
         occupyBlock(row,col);
@@ -203,7 +209,7 @@ function roundsFactory(player1, player2){
     const roundFunctionality = async ()=>{
         let count = 100;
         let Checkwin = false;
-        for(let i = 0; i < count; i++){
+        do{
         let active = getActivePlayer(player1, player2);
         turn(active);
         Checkwin= checkWinStatus(active);
@@ -213,7 +219,7 @@ function roundsFactory(player1, player2){
             break;
         }
         // if (Checkwin!=true){count++;}
-        }
+        }while(Checkwin!=true);
          
         
     }
@@ -237,7 +243,7 @@ function roundsFactory(player1, player2){
 //rounds
 })();
 
-//fixed the swapping.
-//need to fix the infinite loop, basically find a way to stop code at user input, also fix row col
-//also need to test checkwin function
+
+//need to fix the infinite loop
+
 
