@@ -1,12 +1,5 @@
 
 
-const readline = require('readline');
-
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
-
 let gameboard =(function Grid(){
     let rows = 3;
     let columns = 3;
@@ -109,6 +102,25 @@ function playerFactory(){
 
 }
 
+function DOMobject(){
+    let cells = document.querySelectorAll(".cells");
+    let activeBanner = document.querySelector(".turn-banner");
+
+    const renderChoice = (player)=>{
+        console.log(cells);
+        for(let i = 0; i < cells.length;i++){
+            cells[i].addEventListener("click", function(player){
+                
+                cells[i].textContent = player.getPlayerValue();
+               activeBanner.innerHTML = player.getPlayerName();
+            })
+        }
+         
+    }
+   
+    return {renderChoice};
+    
+};
 //###############################################################################################################################
 
 function roundsFactory(player1, player2){
@@ -125,8 +137,9 @@ function roundsFactory(player1, player2){
         
         gameboard.printGrid();
         
-        console.log(player.getPlayerName()+"'s turn")
+        console.log(player.getPlayerName()+"'s turn");
         console.log("\n");
+        
         gameboard.selectCell(player);
         
     }
@@ -207,25 +220,30 @@ function roundsFactory(player1, player2){
 
     
     const roundFunctionality = async ()=>{
-        let count = 100;
         let Checkwin = false;
-        do{
+        // do{
+    
+        let DOM = DOMobject();
         let active = getActivePlayer(player1, player2);
         turn(active);
+        DOM.renderChoice(active);
+        
         Checkwin= checkWinStatus(active);
         if(Checkwin === true){
             console.log(gameboard.getGrid());
             console.log(active.getPlayerName()+" has won!");
-            break;
+           
         }
-        // if (Checkwin!=true){count++;}
-        }while(Checkwin!=true);
+    
+    // if (Checkwin!=true){count++;}
+        
          
         
     }
     return {roundFunctionality};
 
 }
+
 //###############################################################################################################################
 (function Game(){
     let P1 = playerFactory();
@@ -244,6 +262,7 @@ function roundsFactory(player1, player2){
 })();
 
 
-//need to fix the infinite loop
+//need to fix the object pointer event thing
+
 
 
