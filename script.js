@@ -1,4 +1,4 @@
-
+//###############################################################################################################################
 
 let gameboard =(function Grid(){
     let rows = 3;
@@ -23,23 +23,42 @@ let gameboard =(function Grid(){
   const occupyBlock = (row, col)=>{
         blocksTaken.push([row, col]);
     }
-
+const checkTie = ()=>{
+        let count = occupyBlock.length;
+        if (count >= 9){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
     const checkBlockAvailability = (row, col)=>{
         let available = true;
-        
+        let tie = checkTie();
         for(let i = 0; i < blocksTaken.length;i++){
         
                 if(row === blocksTaken[i][0] && col === blocksTaken[i][1]){
+                    if (tie === true){
+                    console.log("TIEEE");
+                    available = false;
+                    break;
+                }
                     console.log("Not available");
                     available = false;
                     break;
                 }
+                
+                
+                
+                
             
         }
         return available;
     }
+    
     const selectCell =async (player) => {
         let row; let col;
+       
         do{
             const prompt = require('prompt-sync')({sigint: true});
          row = parseInt(prompt('Enter row: '));
@@ -50,14 +69,18 @@ let gameboard =(function Grid(){
          }
         }while(row < 0 || row > 3 || col < 0 || col > 3);
         let avbl = checkBlockAvailability(row, col);
+        tie = checkTie();
         if(avbl === true){
         occupyBlock(row,col);
         grid[row-1][col-1]=player.getPlayerValue();
         
         }
         else{
-            console.log(player.getPlayerName()+"'s turn");
+            
+            
+                console.log(player.getPlayerName()+"'s turn");
             selectCell(player);
+            
         }
         
         
@@ -101,24 +124,85 @@ function playerFactory(){
     return {getPlayerName, setPlayerName, getPlayerStatus, setPlayerStatus, setPlayerValue, getPlayerValue, getActivity, setActivity};
 
 }
-
+//###############################################################################################################################
 function DOMobject(){
     let cells = document.querySelectorAll(".cells");
     let activeBanner = document.querySelector(".turn-banner");
+    let winnerBanner = document.querySelector(".winner-banner");
 
-    const renderChoice = (player)=>{
-        console.log(cells);
+    const getActivePlayer_two = (player1, player2) =>{
+       let active;
+        if(player1.getActivity() === true){
+            active = player2;
+            player2.setActivity(true);
+            player1.setActivity(false);
+        }
+        else{
+            active = player1;
+            player1.setActivity(true);
+            player2.setActivity(false);
+
+        }
+        return active; 
+    }
+
+
+
+    const checkDOMwin = (active)=>{
+        let rows = 0;
+        let won = false;
+        //check rows
+       for(let i = 0; rows < 3; i=i+3){
+        rows++;
+        let countrow = 0;
+        
+         for(let j = i; j < 3+i; j++){
+            
+            if (cells[j].textContent===active.getPlayerValue()){
+                countrow++;
+            }
+            if(countrow === 3){
+                winnerBanner.textContent = active.getPlayerName()+ " has won";
+                won = true;
+                break;
+            }
+        }
+        if(won === true){
+            break;
+        }
+       }
+
+       //check rows
+
+       return won;
+
+    }
+
+    const render = (p1, p2)=>{
+        let controller = new AbortController();
+        let turns = 0;
+        let win = false;
         for(let i = 0; i < cells.length;i++){
-            cells[i].addEventListener("click", function(player){
+            
+            cells[i].addEventListener("click", function(){
+                active = getActivePlayer_two(p1, p2);
                 
-                cells[i].textContent = player.getPlayerValue();
-               activeBanner.innerHTML = player.getPlayerName();
-            })
+                turns++;
+                cells[i].textContent = active.getPlayerValue();
+                activeBanner.innerHTML = active.getPlayerName();
+              win = checkDOMwin(active);
+              if(win === true){
+                controller.abort();
+              }
+              
+               //its now rendering but now i need to apply swapping, checking, tying, winning
+            }, {signal: controller.signal})
         }
          
     }
+
    
-    return {renderChoice};
+    return {render};
     
 };
 //###############################################################################################################################
@@ -224,23 +308,25 @@ function roundsFactory(player1, player2){
         // do{
     
         let DOM = DOMobject();
-        let active = getActivePlayer(player1, player2);
-        turn(active);
-        DOM.renderChoice(active);
+        // let active = getActivePlayer(player1, player2);
+        // turn(active);
+        
+        DOM.render(player1, player2);
         
         Checkwin= checkWinStatus(active);
         if(Checkwin === true){
             console.log(gameboard.getGrid());
             console.log(active.getPlayerName()+" has won!");
-           
+          
         }
+    // }while(Checkwin != true);
     
     // if (Checkwin!=true){count++;}
         
          
         
     }
-    return {roundFunctionality};
+    return {roundFunctionality, getActivePlayer};
 
 }
 
@@ -260,7 +346,7 @@ function roundsFactory(player1, player2){
     
 //rounds
 })();
-
+//###############################################################################################################################
 
 //need to fix the object pointer event thing
 
